@@ -653,6 +653,10 @@ dedicated buffers:
   This command lists the current repository's open pull-requests that
   are assigned to you in a separate buffer.
 
+- Command: forge-list-owned-pullreqs
+
+- Command: forge-list-owned-issues
+
 *** Creating Topics
 
 - Key: ' p, forge-create-pullreq
