@@ -404,6 +404,56 @@ repositories.
       (oset topic unread-p nil)
       (forge--ghub-patch notif "/notifications/threads/:thread-id"))))
 
+;;;; Misc
+
+(defun forge--add-user-repos (user)
+  (forge--fetch-user-repos
+   user (apply-partially 'forge--batch-add-callback user)))
+
+(defun forge--add-organization-repos (org)
+  (forge--fetch-organization-repos
+   org (apply-partially 'forge--batch-add-callback org)))
+
+(defun forge--fetch-user-repos (user callback)
+  (ghub--graphql-vacuum
+   '(query (user
+            [(login $login String!)]
+            (repositories
+             [(:edges t)
+	      (ownerAffiliations . (OWNER))]
+             name)))
+   `((login . ,user))
+   (lambda (d)
+     (funcall callback
+              (--map (alist-get 'name it)
+                     (let-alist d .user.repositories))))))
+
+(defun forge--fetch-organization-repos (org callback)
+  (ghub--graphql-vacuum
+   '(query (organization
+	    [(login $login String!)]
+	    (repositories [(:edges t)] name)))
+   `((login . ,org))
+   (lambda (d)
+     (funcall callback
+              (--map (alist-get 'name it)
+                     (let-alist d .organization.repositories))))))
+
+(defun forge--batch-add-callback (actor names)
+  (let ((repos (cl-mapcan (lambda (name)
+                            (let ((repo (forge-get-repository
+                                         (list "github.com" actor name)
+                                         nil 'create)))
+                              (and (oref repo sparse-p)
+                                   (list repo))))
+                          names))
+        cb)
+    (setq cb (lambda ()
+               (when-let ((repo (pop repos)))
+                 (message "Adding %s..." (oref repo name))
+                 (forge--pull repo nil cb))))
+    (funcall cb)))
+
 ;;; Mutations
 
 (cl-defmethod forge--create-pullreq-from-issue ((repo forge-github-repository)
