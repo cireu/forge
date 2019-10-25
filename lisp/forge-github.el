@@ -28,13 +28,8 @@
 
 ;;; Variables
 
-(defvar forge-github-token-scopes '(repo)
+(defvar forge-github-token-scopes '(repo user read:org)
   "The Github API scopes needed by Forge.
-
-`repo' is the only required scope.  Without this scope none of
-Forge's features that use the API work.  Instead of this scope
-you could use `public_repo' if you are only interested in public
-repositories.
 
 `repo' Grants read/write access to code, commit statuses,
   invitations, collaborators, adding team memberships, and
@@ -43,8 +38,27 @@ repositories.
 
 `public_repo' Grants read/write access to code, commit statuses,
   collaborators, and deployment statuses for public repositories
-  and organizations. Also required for starring public
-  repositories.")
+  and organizations.  Also required for starring public
+  repositories.
+
+  You could use this instead of `repo' if you are only interested
+  in public repositories.
+
+`user' Grants read/write access to profile info only.  Note that
+  this scope includes `user:email' and `user:follow'.
+
+  The above description by Github isn't actually correct.  In
+  actuality it is also need to TODO, which is why we need it.
+
+`read:org' Read-only access to organization membership,
+  organization projects, and team membership.
+
+  The above description by Github isn't actually correct.  In
+  actuality it is also need to TODO, which is why we need it.
+
+Visit https://github.com/settings/tokens to change the scopes
+of existing tokens and for a list of all available scopes see
+https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps.")
 
 ;;; Class
 
